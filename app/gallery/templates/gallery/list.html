@@ -1,0 +1,95 @@
+{% extends "gallery/base.html" %}
+
+{% block title %}ロナ日記{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h1 class="section-title">RONNA CORAL</h1>
+    <p class="page-subtitle mb-0">バンド活動記録</p>
+</div>
+
+<div class="band-panel p-3 p-md-4 mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-12 col-md-3">
+            <label for="sort" class="form-label">並び順</label>
+            <select name="sort" id="sort" class="form-select">
+                <option value="new" {% if sort == "new" %}selected{% endif %}>新しい順</option>
+                <option value="old" {% if sort == "old" %}selected{% endif %}>古い順</option>
+            </select>
+        </div>
+
+        <div class="col-12 col-md-3">
+            <label for="year" class="form-label">年</label>
+            <select name="year" id="year" class="form-select">
+                <option value="">すべて</option>
+                {% for y in years %}
+                    <option value="{{ y.year }}" {% if selected_year == y.year|stringformat:"s" %}selected{% endif %}>
+                        {{ y.year }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 col-md-2">
+            <button type="submit" class="btn btn-band w-100">適用</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-4">
+    {% for f in files %}
+        <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+            <div class="media-card h-100">
+                <a href="{% url 'media_detail' f.id %}" class="text-decoration-none">
+                    <div class="media-thumb-wrap">
+                        {% if f.thumbnail %}
+                            <img
+                                src="{{ f.thumbnail.url }}"
+                                class="media-thumb"
+                                alt="{{ f.title|default:f.file.name }}"
+                            >
+                        {% else %}
+                            <div class="media-empty">
+                                No Thumbnail
+                            </div>
+                        {% endif %}
+
+                        <div class="media-badge">
+                            {% if f.media_type == "video" %}
+                                VIDEO
+                            {% else %}
+                                PHOTO
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+
+                <div class="p-3">
+                    <div class="media-title">
+                        {{ f.title|default:f.file.name }}
+                    </div>
+
+                    <div class="media-meta mb-3">
+                        {{ f.uploaded_at|date:"Y/m/d H:i" }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'media_detail' f.id %}" class="btn btn-band-outline btn-sm w-50">
+                            詳細
+                        </a>
+                        <a href="{% url 'delete_media' f.id %}" class="btn btn-outline-danger btn-sm w-50">
+                            削除
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="band-panel p-4 text-center footer-note">
+                ファイルがまだありません。
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

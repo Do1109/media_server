@@ -1,0 +1,24 @@
+{% extends "gallery/base.html" %}
+
+{% block title %}削除確認{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-body">
+                <h1 class="h4 text-danger mb-3">削除確認</h1>
+
+                <p>このファイルを削除しますか？</p>
+                <p class="fw-bold">{{ obj.title|default:obj.file.name }}</p>
+
+                <form method="post" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">削除する</button>
+                    <a href="{% url 'media_list' %}" class="btn btn-secondary">戻る</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
