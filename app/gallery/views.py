@@ -137,9 +137,6 @@ def edit_info(request, pk):
     return redirect("band_info")
 
 
-
-
-
 @login_required
 def delete_media(request, pk: int):
     obj = get_object_or_404(MediaFile, pk=pk)
