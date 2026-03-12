@@ -13,7 +13,7 @@ import subprocess
 
 @login_required
 def media_list(request):
-    qs = MediaFile.objects.filter(owner=request.user)
+    qs = MediaFile.objects
 
     sort = request.GET.get("sort", "new")
     year = request.GET.get("year", "")
@@ -100,7 +100,7 @@ def upload_media(request):
 
 @login_required
 def media_detail(request, pk: int):
-    obj = get_object_or_404(MediaFile, pk=pk, owner=request.user)
+    obj = get_object_or_404(MediaFile, pk=pk)
     return render(request, "gallery/detail.html", {"obj": obj})
 
 
@@ -125,8 +125,24 @@ def band_info(request):
 
 
 @login_required
+def edit_info(request, pk):
+    obj = get_object_or_404(InfoText, pk=pk)
+    if request.method == "POST":
+
+        form = InfoTextForm(request.POST, instance=obj)
+        if form.is_valid():
+            form.save()
+        return redirect("band_info")
+
+    return redirect("band_info")
+
+
+
+
+
+@login_required
 def delete_media(request, pk: int):
-    obj = get_object_or_404(MediaFile, pk=pk, owner=request.user)
+    obj = get_object_or_404(MediaFile, pk=pk)
 
     if request.method == "POST":
         if obj.file:
@@ -137,3 +153,14 @@ def delete_media(request, pk: int):
         return redirect("media_list")
 
     return render(request, "gallery/delete_confirm.html", {"obj": obj})
+
+
+@login_required
+def delete_info(request, pk: int):
+    obj = get_object_or_404(InfoText, pk=pk)
+
+    if request.method == "POST":
+        obj.delete()
+        return redirect("band_info")
+
+    return render(request, "gallery/delete_info_confirm.html", {"obj": obj})

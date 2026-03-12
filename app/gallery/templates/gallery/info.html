@@ -21,20 +21,267 @@
 <div class="band-panel p-3 mb-3">
     <div class="small-muted mb-1">
         {{ p.owner.username }} / {{ p.created_at|date:"Y/m/d H:i" }}
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-band">削除</button>
-    </form>
     </div>
     <div class="mb-2">{{ p.content|linebreaks }}</div>
-
-    {% if p.image %}
-        <img src="{{ p.image.url }}" class="img-fluid rounded">
-    {% endif %}
-</div>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-band-outline btn-sm edit-btn" data-id="{{ p.id }}" data-content="{{ p.content|escapejs }}">
+            編集
+        </button>
+        <a href="{% url 'delete_info' p.id %}" class="btn btn-outline-danger btn-sm">爆破</a>
+    </div>
 {% empty %}
 <div class="band-panel p-4 text-center small-muted">
     投稿はまだありません。
 </div>
 {% endfor %}
+
+
+<div id="editOverlay" class="edit-overlay"></div>
+
+
+
+<div id="editPanel" class="edit-panel">
+
+    <div class="edit-panel-header">
+
+        <h3 class="mb-0">投稿を編集</h3>
+
+        <button type="button" class="btn btn-sm btn-outline-light" id="closeEditPanel">閉じる</button>
+
+    </div>
+
+
+
+    <form method="post" id="editForm">
+
+        {% csrf_token %}
+
+        <div class="mb-3">
+
+            <textarea
+
+                name="content"
+
+                id="editContent"
+
+                class="form-control auto-resize"
+
+                rows="4"
+
+                placeholder="メッセージを書く..."
+
+            ></textarea>
+
+        </div>
+
+
+
+        <div class="d-flex gap-2">
+
+            <button type="submit" class="btn btn-band">保存</button>
+
+            <button type="button" class="btn btn-band-outline" id="cancelEditPanel">キャンセル</button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+<style>
+
+.edit-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition: 0.25s ease;
+
+    z-index: 999;
+
+}
+
+
+
+.edit-overlay.show {
+
+    opacity: 1;
+
+    visibility: visible;
+
+}
+
+
+
+.edit-panel {
+
+    position: fixed;
+
+    top: -100%;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: min(720px, calc(100% - 24px));
+
+    background: rgba(23, 24, 29, 0.98);
+
+    border: 1px solid rgba(255,255,255,0.08);
+
+    border-radius: 0 0 18px 18px;
+
+    box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+
+    padding: 20px;
+
+    z-index: 1000;
+
+    transition: top 0.35s ease;
+
+}
+
+
+
+.edit-panel.show {
+
+    top: 0;
+
+}
+
+
+
+.edit-panel-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 16px;
+
+}
+
+
+
+textarea.auto-resize {
+
+    min-height: 140px;
+
+    resize: none;
+
+    overflow: hidden;
+
+}
+
+</style>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const editButtons = document.querySelectorAll(".edit-btn");
+
+    const editPanel = document.getElementById("editPanel");
+
+    const editOverlay = document.getElementById("editOverlay");
+
+    const editForm = document.getElementById("editForm");
+
+    const editContent = document.getElementById("editContent");
+
+    const closeEditPanel = document.getElementById("closeEditPanel");
+
+    const cancelEditPanel = document.getElementById("cancelEditPanel");
+
+
+
+    function resizeTextarea(el) {
+
+        el.style.height = "auto";
+
+        el.style.height = el.scrollHeight + "px";
+
+    }
+
+
+
+    function openEditPanel(postId, content) {
+
+        editForm.action = `/info/edit/${postId}/`;
+
+        editContent.value = content;
+
+        resizeTextarea(editContent);
+
+
+
+        editOverlay.classList.add("show");
+
+        editPanel.classList.add("show");
+
+        document.body.style.overflow = "hidden";
+
+    }
+
+
+
+    function closePanel() {
+
+        editOverlay.classList.remove("show");
+
+        editPanel.classList.remove("show");
+
+        document.body.style.overflow = "";
+
+    }
+
+
+
+    editButtons.forEach((btn) => {
+
+        btn.addEventListener("click", function () {
+
+            const postId = btn.dataset.id;
+
+            const content = btn.dataset.content;
+
+            openEditPanel(postId, content);
+
+        });
+
+    });
+
+
+
+    closeEditPanel.addEventListener("click", closePanel);
+
+    cancelEditPanel.addEventListener("click", closePanel);
+
+    editOverlay.addEventListener("click", closePanel);
+
+
+
+    editContent.addEventListener("input", function () {
+
+        resizeTextarea(editContent);
+
+    });
+
+});
+
+</script>
+
 {% endblock %}

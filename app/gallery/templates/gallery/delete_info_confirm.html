@@ -1,6 +1,6 @@
 {% extends "gallery/base.html" %}
 
-{% block title %}爆破確認{% endblock %}
+{% block title %}投稿爆破{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
@@ -10,8 +10,9 @@
 
 <div class="mb-3">
 <div class="small-muted mb-2">
-{{ obj.title|default:obj.file.name }}
+{{ obj.owner.username }} / {{ obj.created_at|date:"Y/m/d H:i" }}
 </div>
+<div>{{ obj.content|linebreaks }}</div>
 </div>
 
 <form method="post">
